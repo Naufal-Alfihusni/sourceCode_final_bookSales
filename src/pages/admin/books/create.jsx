@@ -17,6 +17,7 @@ export default function BookCreate() {
     description: "",
   });
 
+  const accessToken = localStorage.getItem("accessToken");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +51,11 @@ export default function BookCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!accessToken) {
+      navigate("/login");
+      return;
+    }
 
     try {
       const payload = new FormData();

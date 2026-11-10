@@ -5,19 +5,21 @@ import { useEffect } from "react";
 export default function AdminLayout() {
   const token = localStorage.getItem("accessToken");
   const decodedData = useDecodeToken(token);
-  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
+  const hasUserInfo = userInfo !== null;
+  const role = userInfo?.role;
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!token || !decodedData || !decodedData.success) {
+    if (!token || !decodedData || !decodedData.success || !hasUserInfo) {
       navigate("/login");
+      return;
     }
 
-    const role = userInfo.role;
-    if (role !== "admin" || !role) {
+    if (role !== "admin") {
       navigate("/");
     }
-  }, [token, decodedData, navigate]);
+  }, [token, decodedData, hasUserInfo, navigate, role]);
 
   const handleLogout = async () => {
     if (token) {
@@ -108,7 +110,7 @@ export default function AdminLayout() {
                 to={""}
                 className="text-white bg-grey-700 hover:bg-grey-800 focus:ring-4 focus:ring-grey-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-grey-600 dark:hover:bg-grey-700 focus:outline-none dark:focus:ring-grey-800"
               >
-                {userInfo.name}
+                {userInfo?.name}
               </Link>
               <button
                 type="button"
