@@ -5,6 +5,7 @@ import { bookImageStore } from "../../../_api";
 
 export default function Books() {
   const [books, setBooks] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -14,15 +15,31 @@ export default function Books() {
     fetchData();
   }, []);
 
-  //console.log(books);
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const filteredBooks = books.filter((book) =>
+    book.title.toLowerCase().includes(normalizedSearchTerm),
+  );
 
   return (
     <>
       <section className="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
         <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
+          <div className="mb-6">
+            <label htmlFor="book-search" className="sr-only">
+              Search books
+            </label>
+            <input
+              type="search"
+              id="book-search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Cari buku berdasarkan judul..."
+              className="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+            />
+          </div>
           <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
-            {books.length > 0 ? (
-              books.map((book) => (
+            {filteredBooks.length > 0 ? (
+              filteredBooks.map((book) => (
                 <div
                   key={book.id}
                   className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
@@ -90,10 +107,15 @@ export default function Books() {
                           Best Price
                         </p>
                       </li>
+                      <li className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          Stock : {book.stock}
+                        </p>
+                      </li>
                     </ul>
 
                     <div className="mt-4 flex items-center justify-between gap-4">
-                      <p className="text-2xl font-extrabold leading-tight text-gray-900 dark:text-white">
+                      <p className="text-xl font-extrabold leading-tight text-gray-900 dark:text-white">
                         Rp {book.price}
                       </p>
 
@@ -108,7 +130,11 @@ export default function Books() {
                 </div>
               ))
             ) : (
-              <p>No books found</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                {books.length > 0
+                  ? "Buku dengan judul tersebut tidak ditemukan."
+                  : "No books found."}
+              </p>
             )}
           </div>
           <div className="w-full text-center">
