@@ -73,7 +73,7 @@ export default function UserEdit() {
 
   return (
     <>
-      <section className="bg-white dark:bg-gray-900">
+      <section className="flex-1 bg-white dark:bg-gray-900">
         <div className="max-w-2xl px-4 py-8 mx-auto lg:py-16">
           <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
             Edit User Profile

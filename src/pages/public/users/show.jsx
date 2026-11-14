@@ -4,7 +4,7 @@ import { showUser } from "../../../_services/users";
 
 export default function ShowUser() {
   const { id } = useParams();
-  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -13,17 +13,17 @@ export default function ShowUser() {
     const fetchData = async () => {
       if (!isMounted) return;
 
-      setUser(null);
+      setUsers(null);
       setError("");
 
       try {
-        const userData = await showUser(id);
-        if (!userData) {
+        const usersData = await showUser(id);
+        if (!usersData) {
           throw new Error("User profile not found.");
         }
 
         if (isMounted) {
-          setUser(userData);
+          setUsers(usersData);
         }
       } catch (requestError) {
         if (!isMounted) return;
@@ -45,8 +45,8 @@ export default function ShowUser() {
   }, [id]);
 
   return (
-    <section className="bg-white dark:bg-gray-900 ">
-      <div className="max-w-2xl px-4 py-8 mx-auto lg:py-16 min-h-screen">
+    <section className="flex-1 bg-white dark:bg-gray-900 ">
+      <div className="max-w-2xl px-4 py-8 mx-auto lg:py-16">
         <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
           User Profile
         </h1>
@@ -63,7 +63,7 @@ export default function ShowUser() {
               Back to Home
             </Link>
           </>
-        ) : !user ? (
+        ) : !users ? (
           <p className="text-gray-600 dark:text-gray-300">
             Loading user profile...
           </p>
@@ -75,7 +75,7 @@ export default function ShowUser() {
                   Name
                 </dt>
                 <dd className="mt-1 text-base text-gray-900 dark:text-white">
-                  {user.name}
+                  {users.name}
                 </dd>
               </div>
               <div>
@@ -83,7 +83,7 @@ export default function ShowUser() {
                   Email
                 </dt>
                 <dd className="mt-1 text-base text-gray-900 dark:text-white">
-                  {user.email}
+                  {users.email}
                 </dd>
               </div>
             </dl>

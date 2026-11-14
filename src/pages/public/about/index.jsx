@@ -1,21 +1,47 @@
 import { Link } from "react-router-dom";
+import logo from "../../../assets/logo.png";
+import logoDark from "../../../assets/logo_dark.png";
+import logoTextDark from "../../../assets/logo_teks_dark.png";
+import logoTextWhite from "../../../assets/logo_teks_white.png";
 
 export default function AboutUs() {
   return (
-    <section className="bg-white dark:bg-gray-900">
+    <section className=" bg-white dark:bg-gray-900">
       <div className="mx-auto max-w-screen-xl px-4 py-16 lg:px-12 lg:py-24">
         <div className="mx-auto max-w-3xl text-center">
+          <img
+            className="mx-auto mb-6 h-auto w-full max-w-64 object-contain sm:max-w-80 dark:hidden"
+            src={logo}
+            alt="MYbookSales Logo"
+          />
+          <img
+            className="mx-auto mb-6 hidden h-auto w-full max-w-64 object-contain sm:max-w-80 dark:block"
+            src={logoDark}
+            alt="MYbookSales Logo"
+          />
           <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-400">
             Tentang Kami
           </p>
-          <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-gray-900 md:text-5xl dark:text-white">
-            Selamat datang di BookSales
+          <h1 className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-4xl font-extrabold tracking-tight text-gray-900 md:text-5xl dark:text-white">
+            <span>Selamat datang di</span>
+            <span className="inline-flex items-center">
+              <img
+                className="h-auto w-48 max-w-full object-contain sm:w-56 md:w-64 dark:hidden"
+                src={logoTextWhite}
+                alt="MYbookSales"
+              />
+              <img
+                className="hidden h-auto w-48 max-w-full object-contain sm:w-56 md:w-64 dark:block"
+                src={logoTextDark}
+                alt="MYbookSales"
+              />
+            </span>
           </h1>
           <p className="mb-8 text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-            BookSales adalah tempat untuk menjelajahi berbagai pilihan buku,
+            MYbookSales adalah tempat untuk menjelajahi berbagai pilihan buku,
             mengenal penulis, dan menemukan bacaan yang sesuai dengan minatmu.
-            Kami ingin membuat pengalaman mencari dan membeli buku menjadi
-            lebih mudah.
+            Kami ingin membuat pengalaman mencari dan membeli buku menjadi lebih
+            mudah.
           </p>
           <Link
             to="/books"

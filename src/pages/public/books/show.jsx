@@ -3,6 +3,7 @@ import { showBook } from "../../../_services/books";
 import { useNavigate, useParams } from "react-router-dom";
 import { bookImageStore } from "../../../_api";
 import { createTransaction } from "../../../_services/transactions";
+import { addToCart } from "../../../_services/cart";
 
 export default function ShowBook() {
   const { id } = useParams();
@@ -34,12 +35,44 @@ export default function ShowBook() {
         quantity: quantity,
       };
 
-      await createTransaction(payload);
-      alert("Pembelian berhasil");
+      const response = await createTransaction(payload);
+      const transaction =
+        response?.data?.data ||
+        response?.data?.transaction ||
+        response?.data ||
+        response;
+
+      if (!transaction?.id) {
+        throw new Error("Transaction details are unavailable.");
+      }
+
+      navigate(`/transactions/show/${transaction.id}`, {
+        state: { transactions: [transaction] },
+      });
     } catch (error) {
       console.log(error);
-      throw error;
+      alert(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to create transaction.",
+      );
     }
+  };
+
+  const handleAddToCart = () => {
+    const quantityToAdd = Number(quantity);
+
+    if (!Number.isInteger(quantityToAdd) || quantityToAdd < 1) {
+      alert("Jumlah buku harus minimal 1.");
+      return;
+    }
+
+    if (!addToCart(book, quantityToAdd)) {
+      alert("Jumlah buku melebihi stok yang tersedia.");
+      return;
+    }
+
+    alert("Buku berhasil ditambahkan ke keranjang.");
   };
 
   return (
@@ -125,43 +158,51 @@ export default function ShowBook() {
                   <p className="text-sm font-medium leading-none text-gray-500 dark:text-gray-400">
                     (5.0)
                   </p>
-                  <a
-                    href="#"
-                    className="text-sm font-medium leading-none text-gray-900 underline hover:no-underline dark:text-white"
-                  >
+                  <p className="text-sm font-medium leading-none text-gray-900 hover:no-underline dark:text-white">
                     345 Reviews
-                  </a>
+                  </p>
                 </div>
               </div>
-
-              <div className="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
-                <form
-                  onSubmit={handleSubmit}
-                  className="mt-6 sm:mt-8 space-y-4"
-                >
-                  <div>
-                    <label
-                      htmlFor="quantity"
-                      className="block text-sm font-medium text-gray-700 dark:text-white"
-                    >
-                      Jumlah
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      name="quantity"
-                      value={quantity}
-                      min={1}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      className="mt-1 block w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm dark:bg-dark-800 dark:border-gray-600 dark:text-dark focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
+              <div className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-6 dark:border-gray-700 dark:bg-gray-800">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="w-full sm:max-w-xs">
+                      <label
+                        htmlFor="quantity"
+                        className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Jumlah
+                      </label>
+                      <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                        value={quantity}
+                        min={1}
+                        max={book.stock}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        className="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Stok tersedia: {book.stock}
+                    </p>
                   </div>
-                  <button
-                    type="submit"
-                    className="text-white mt-4 sm:mt-0 bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800 flex items-center justify-center"
-                  >
-                    Buy Now
-                  </button>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <button
+                      type="submit"
+                      className="flex w-full items-center justify-center rounded-lg bg-indigo-700 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-indigo-800 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+                    >
+                      Beli Sekarang
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAddToCart}
+                      className="flex w-full items-center justify-center rounded-lg border border-indigo-700 px-5 py-3 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-50 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-gray-700 dark:focus:ring-indigo-800"
+                    >
+                      Tambah ke Keranjang
+                    </button>
+                  </div>
                 </form>
               </div>
 

@@ -9,6 +9,7 @@ export default function AdminBooks() {
   const [books, setBooks] = useState([]);
   const [genres, setGenres] = useState([]);
   const [authors, setAuthors] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
@@ -37,6 +38,21 @@ export default function AdminBooks() {
     return author ? author.name : "Unknown Author";
   };
 
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const filteredBooks = books.filter((book) =>
+    [
+      book.title,
+      book.price,
+      book.stock,
+      getGenreName(book.genre_id),
+      getAuthorName(book.author_id),
+    ].some((value) =>
+      String(value ?? "")
+        .toLowerCase()
+        .includes(normalizedSearchTerm),
+    ),
+  );
+
   const toggleDropdown = (id) => {
     setOpenDropdownId(openDropdownId === id ? null : id);
   };
@@ -57,8 +73,8 @@ export default function AdminBooks() {
           <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <div className="w-full md:w-1/2">
               <form className="flex items-center">
-                <label htmlFor="simple-search" className="sr-only">
-                  Search
+                <label htmlFor="book-search" className="sr-only">
+                  Cari buku
                 </label>
                 <div className="relative w-full">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -77,11 +93,12 @@ export default function AdminBooks() {
                     </svg>
                   </div>
                   <input
-                    type="text"
-                    id="simple-search"
+                    type="search"
+                    id="book-search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-                    placeholder="Search"
-                    required=""
+                    placeholder="Cari buku berdasarkan judul, genre, atau penulis..."
                   />
                 </div>
               </form>
@@ -136,8 +153,8 @@ export default function AdminBooks() {
                 </tr>
               </thead>
               <tbody>
-                {books.length > 0 ? (
-                  books.map((book) => (
+                {filteredBooks.length > 0 ? (
+                  filteredBooks.map((book) => (
                     <tr key={book.id} className="border-b dark:border-gray-700">
                       <th
                         scope="row"
@@ -164,6 +181,8 @@ export default function AdminBooks() {
                         <button
                           id={`dropdown-button-${book.id}`}
                           onClick={() => toggleDropdown(book.id)}
+                          aria-expanded={openDropdownId === book.id}
+                          aria-controls={`dropdown-menu-${book.id}`}
                           className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                           type="button"
                         >
@@ -179,9 +198,8 @@ export default function AdminBooks() {
                         </button>
                         {openDropdownId === book.id && (
                           <div
-                            id="dropdown"
-                            className="absolute right-0 mt-2 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                            style={{ top: "100px", right: "0" }}
+                            id={`dropdown-menu-${book.id}`}
+                            className="absolute right-0 top-full z-20 mt-1 w-44 rounded divide-y divide-gray-100 bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
                           >
                             <ul
                               className="py-1 text-sm text-gray-700 dark:text-gray-200"
@@ -212,7 +230,9 @@ export default function AdminBooks() {
                 ) : (
                   <tr>
                     <td colSpan="7" className="px-4 py-3 text-center">
-                      Data tidak ditemukan
+                      {books.length > 0
+                        ? "Data buku tidak ditemukan."
+                        : "Data tidak ditemukan."}
                     </td>
                   </tr>
                 )}

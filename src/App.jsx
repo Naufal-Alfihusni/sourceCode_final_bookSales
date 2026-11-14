@@ -7,17 +7,23 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import Home from "./pages/public";
+//public
 import PublicLayout from "./layouts/public";
+import Home from "./pages/public";
 import Authors from "./pages/public/authors";
 import Books from "./pages/public/books";
 import ShowBook from "./pages/public/books/show";
+import AboutUs from "./pages/public/about";
+import Cart from "./pages/public/cart";
 import ShowUser from "./pages/public/users/show";
 import UserEdit from "./pages/public/users/edit";
+import ShowTransaction from "./pages/public/transactions/show";
 
+//auth
 import Login from "./pages/auth/login";
 import Register from "./pages/auth/register";
 
+//admin
 import AdminLayout from "./layouts/admin";
 import Dashboard from "./pages/admin";
 import AdminBooks from "./pages/admin/books";
@@ -34,8 +40,8 @@ import AuthorEdit from "./pages/admin/authors/edit";
 import BookEdit from "./pages/admin/books/edit";
 import GenreEdit from "./pages/admin/genres/edit";
 import TransactionEdit from "./pages/admin/transactions/edit";
-import AboutUs from "./pages/public/about";
 
+//fungsi untuk menghapus jika token tidak valid/expired
 function TokenExpiryWatcher() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -83,9 +89,16 @@ function App() {
               <Route path="show/:id" element={<ShowBook />} />
             </Route>
             <Route path="about" element={<AboutUs />} />
+            <Route path="cart" element={<Cart />} />
             <Route path="users">
               <Route path="show/:id" element={<ShowUser />} />
               <Route path="edit/:id" element={<UserEdit />} />
+            </Route>
+            <Route path="transactions">
+              <Route
+                path="show/:id"
+                element={<ShowTransaction />}
+              />
             </Route>
           </Route>
 

@@ -1,41 +1,74 @@
 import { useEffect, useState } from "react";
 import { getBooks } from "../../../_services/books";
+import { getGenres } from "../../../_services/genres";
 import { Link } from "react-router-dom";
 import { bookImageStore } from "../../../_api";
 
 export default function Books() {
   const [books, setBooks] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      const [booksData] = await Promise.all([getBooks()]);
+      const [booksData, genresData] = await Promise.all([
+        getBooks(),
+        getGenres(),
+      ]);
       setBooks(booksData.data);
+      setGenres(genresData.data);
     };
     fetchData();
   }, []);
 
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-  const filteredBooks = books.filter((book) =>
-    book.title.toLowerCase().includes(normalizedSearchTerm),
-  );
+  const filteredBooks = books.filter((book) => {
+    const matchesTitle = book.title
+      .toLowerCase()
+      .includes(normalizedSearchTerm);
+    const matchesGenre =
+      !selectedGenre || String(book.genre_id) === selectedGenre;
+
+    return matchesTitle && matchesGenre;
+  });
 
   return (
     <>
-      <section className="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
+      <section className="flex-1 bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
         <div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
-          <div className="mb-6">
-            <label htmlFor="book-search" className="sr-only">
-              Search books
-            </label>
-            <input
-              type="search"
-              id="book-search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Cari buku berdasarkan judul..."
-              className="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
-            />
+          <div className="mb-6 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor="book-search" className="sr-only">
+                Cari buku berdasarkan judul
+              </label>
+              <input
+                type="search"
+                id="book-search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Cari buku berdasarkan judul..."
+                className="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+              />
+            </div>
+            <div>
+              <label htmlFor="genre-filter" className="sr-only">
+                Filter berdasarkan genre
+              </label>
+              <select
+                id="genre-filter"
+                value={selectedGenre}
+                onChange={(e) => setSelectedGenre(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              >
+                <option value="">Semua genre</option>
+                {genres.map((genre) => (
+                  <option key={genre.id} value={genre.id}>
+                    {genre.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
             {filteredBooks.length > 0 ? (
@@ -132,18 +165,10 @@ export default function Books() {
             ) : (
               <p className="text-gray-600 dark:text-gray-400">
                 {books.length > 0
-                  ? "Buku dengan judul tersebut tidak ditemukan."
+                  ? "Buku dengan pencarian atau genre tersebut tidak ditemukan."
                   : "No books found."}
               </p>
             )}
-          </div>
-          <div className="w-full text-center">
-            <button
-              type="button"
-              className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
-            >
-              Show more
-            </button>
           </div>
         </div>
       </section>

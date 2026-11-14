@@ -4,6 +4,7 @@ import { deleteGenre, getGenres } from "../../../_services/genres";
 
 export default function AdminGenres() {
   const [genres, setGenres] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
@@ -14,6 +15,15 @@ export default function AdminGenres() {
     };
     fetchData();
   }, []);
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const filteredGenres = genres.filter((genre) =>
+    [genre.name, genre.description].some((value) =>
+      String(value ?? "")
+        .toLowerCase()
+        .includes(normalizedSearchTerm),
+    ),
+  );
 
   const toggleDropdown = (id) => {
     setOpenDropdownId(openDropdownId === id ? null : id);
@@ -37,8 +47,8 @@ export default function AdminGenres() {
           <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <div className="w-full md:w-1/2">
               <form className="flex items-center">
-                <label htmlFor="simple-search" className="sr-only">
-                  Search
+                <label htmlFor="genre-search" className="sr-only">
+                  Cari genre
                 </label>
                 <div className="relative w-full">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -57,11 +67,12 @@ export default function AdminGenres() {
                     </svg>
                   </div>
                   <input
-                    type="text"
-                    id="simple-search"
+                    type="search"
+                    id="genre-search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-                    placeholder="Search"
-                    required=""
+                    placeholder="Cari berdasarkan nama atau deskripsi genre..."
                   />
                 </div>
               </form>
@@ -104,8 +115,8 @@ export default function AdminGenres() {
                 </tr>
               </thead>
               <tbody>
-                {genres.length > 0 ? (
-                  genres.map((genre) => (
+                {filteredGenres.length > 0 ? (
+                  filteredGenres.map((genre) => (
                     <tr
                       key={genre.id}
                       className="border-b dark:border-gray-700"
@@ -121,6 +132,8 @@ export default function AdminGenres() {
                         <button
                           id={`dropdown-button-${genre.id}`}
                           onClick={() => toggleDropdown(genre.id)}
+                          aria-expanded={openDropdownId === genre.id}
+                          aria-controls={`dropdown-menu-${genre.id}`}
                           className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                           type="button"
                         >
@@ -136,9 +149,8 @@ export default function AdminGenres() {
                         </button>
                         {openDropdownId === genre.id && (
                           <div
-                            id="dropdown"
-                            className="absolute right-0 mt-2 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                            style={{ top: "100px", right: "0" }}
+                            id={`dropdown-menu-${genre.id}`}
+                            className="absolute right-0 top-full z-20 mt-1 w-44 rounded divide-y divide-gray-100 bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
                           >
                             <ul
                               className="py-1 text-sm text-gray-700 dark:text-gray-200"
@@ -168,8 +180,10 @@ export default function AdminGenres() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="px-4 py-3 text-center">
-                      Data tidak ditemukan
+                    <td colSpan="3" className="px-4 py-3 text-center">
+                      {genres.length > 0
+                        ? "Data genre tidak ditemukan."
+                        : "Data tidak ditemukan."}
                     </td>
                   </tr>
                 )}

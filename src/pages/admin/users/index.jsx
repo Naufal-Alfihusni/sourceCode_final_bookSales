@@ -3,6 +3,7 @@ import { deleteUser, getUsers } from "../../../_services/users";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
   useEffect(() => {
@@ -12,6 +13,15 @@ export default function AdminUsers() {
     };
     fetchData();
   }, []);
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const filteredUsers = users.filter((user) =>
+    [user.name, user.email, user.role].some((value) =>
+      String(value ?? "")
+        .toLowerCase()
+        .includes(normalizedSearchTerm),
+    ),
+  );
 
   const toggleDropdown = (id) => {
     setOpenDropdownId(openDropdownId === id ? null : id);
@@ -33,8 +43,8 @@ export default function AdminUsers() {
           <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <div className="w-full md:w-1/2">
               <form className="flex items-center">
-                <label htmlFor="simple-search" className="sr-only">
-                  Search
+                <label htmlFor="user-search" className="sr-only">
+                  Cari pengguna
                 </label>
                 <div className="relative w-full">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -53,11 +63,12 @@ export default function AdminUsers() {
                     </svg>
                   </div>
                   <input
-                    type="text"
-                    id="simple-search"
+                    type="search"
+                    id="user-search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-                    placeholder="Search"
-                    required=""
+                    placeholder="Cari berdasarkan nama, email, atau role..."
                   />
                 </div>
               </form>
@@ -83,8 +94,8 @@ export default function AdminUsers() {
                 </tr>
               </thead>
               <tbody>
-                {users.length > 0 ? (
-                  users.map((user) => (
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
                     <tr key={user.id} className="border-b dark:border-gray-700">
                       <th
                         scope="row"
@@ -98,6 +109,8 @@ export default function AdminUsers() {
                         <button
                           id={`dropdown-button-${user.id}`}
                           onClick={() => toggleDropdown(user.id)}
+                          aria-expanded={openDropdownId === user.id}
+                          aria-controls={`dropdown-menu-${user.id}`}
                           className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                           type="button"
                         >
@@ -113,9 +126,8 @@ export default function AdminUsers() {
                         </button>
                         {openDropdownId === user.id && (
                           <div
-                            id="dropdown"
-                            className="absolute right-0 mt-2 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                            style={{ top: "100px", right: "0" }}
+                            id={`dropdown-menu-${user.id}`}
+                            className="absolute right-0 top-full z-20 mt-1 w-44 rounded divide-y divide-gray-100 bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
                           >
                             <div className="py-1">
                               <button
@@ -132,8 +144,10 @@ export default function AdminUsers() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="px-4 py-3 text-center">
-                      Data tidak ditemukan
+                    <td colSpan="4" className="px-4 py-3 text-center">
+                      {users.length > 0
+                        ? "Data pengguna tidak ditemukan."
+                        : "Data tidak ditemukan."}
                     </td>
                   </tr>
                 )}
