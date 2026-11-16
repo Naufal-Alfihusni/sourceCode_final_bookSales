@@ -32,7 +32,7 @@ export default function AdminUsers() {
 
     if (confirmDelete) {
       await deleteUser(id);
-      setUsers(users.filter((author) => author.id !== id));
+      setUsers(users.filter((user) => user.id !== id));
     }
   };
 
